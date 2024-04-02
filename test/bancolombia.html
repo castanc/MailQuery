@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+
+function extract(text, start, end = "") {
+  let word = "";
+  try {
+    let index = text.indexOf(start);
+    let index2 = 0;
+    while (index >= 0) {
+      index += start.length;
+      if (end.length > 0)
+        index2 = text.indexOf(end, index);
+      else index2 = text.length;
+
+      if (index2 > index) {
+        word = text.substr(index, index2 - index);
+      }
+      index = text.indexOf(start, index2 + end.length);
+    }
+  }
+  catch (ex) {
+    Logger.log("extract() " + ex.message );
+  }
+  return word;
+}
+
+    function movBancolombia(plainBody, dt, subject) {
+        let tran = {};
+        let val = "";
+        let parts = [];
+
+
+        let row = [];
+        let start = "Bancolombia le informa Compra por ";
+        let end = ". Inquietudes";
+
+        //Bancolombia le informa Compra por $13.973,49 en DISCO 13 11:39. 01/04/2024 T.Deb *7764. Inquietudes al 6045109095/018000931987.
+        let ix = plainBody.indexOf(start);
+        if (ix < 0) return row;
+
+        plainBody = plainBody.substr(ix + start.length);
+        ix = plainBody.indexOf(end);
+
+        if (ix < 0) return row;
+
+        plainBody = plainBody.substring(0, ix);
+        ix = plainBody.indexOf(" ");
+        if (ix < 0) return row;
+
+        val = plainBody.substring(1, ix);
+        plainBody = plainBody.replace(`$${val} en `, "").trim();
+        val = val.replaceAll(".","").replace(",",".");
+
+        let comercio = "";
+        ix = plainBody.indexOf(":");
+        if (ix > 0 )
+        {
+            comercio = plainBody.substring(0,ix);
+            ix = comercio.lastIndexOf(" ");
+            if ( ix > 0 )
+                comercio = comercio.substring(0,ix);
+
+        }
+
+        plainBody = plainBody.replace(comercio, "").trim();
+
+        ix = plainBody.indexOf(".");
+        let time = plainBody.substr(0, ix).trim();
+        plainBody = plainBody.replace(`${time}.`, "").trim();
+
+        let fecha = "";
+        ix = plainBody.indexOf("T.Deb");
+        if (ix > 0) {
+            fecha = plainBody.substr(0, ix).trim();
+        }
+
+        plainBody = plainBody.replace(`${fecha} T.Deb *`, "").trim();
+        let card = plainBody;
+
+        row = [dt, "DB", "BANCOLOMBIA", val, `${fecha} ${time}`, card];
+
+        return row;
+
+    }
+
+    console.log("Start");
+    //https://blog.sentry.io/client-javascript-reporting-window-onerror/
+    window.onerror = function (msg, url, line) {
+        console.error(msg);
+        console.error(url);
+        console.error(line);
+        let errMsg = `JS ERROR ${msg}\n${url}\n${line}`;
+        alert(errMsg);
+        console.log('window.onerror', msg, url, line);
+    }
+    window.addEventListener('load', entryPoint2);
+
+
+    function entryPoint2() {
+        let text = "Bancolombia le informa Compra por $13.973,49 en DISCO 13 11:39. 01/04/2024 T.Deb *7764. Inquietudes al 6045109095/018000931987.";
+        let row = movBancolombia(text,new Date(),"");
+
+    }
+
+
+</script>

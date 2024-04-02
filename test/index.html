@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+
+
+
+function getMidIneroTransfers(triggers, lines, kind, dt, subject) {
+        let rows = [];
+        let row = [];
+
+        lines = lines.filter(x => x.trim() != "");
+
+        row = [dt, kind];
+        for (j = 0; j < lines.length; j++) {
+
+            triggers.every((trigger, i) => {
+                if (lines[j].indexOf(trigger) >= 0) {
+                    j++;
+                    if (lines[j].includes("$")) {
+                        lines[j] = lines[j].replaceAll("$", "").replaceAll(".", "").replaceAll(",", ".");
+                    }
+                    let val = lines[j].trim().replaceAll("*", "");
+                    row.push(val);
+                    return false;
+                }
+                return true;
+            });
+        }
+        return row;
+
+    }
+
+
+    function getMidIneroTransfers2(triggers, lines, kind, dt, subject) {
+        let rows = [];
+        let row = [];
+
+        lines = lines.filter(x => x.trim() != "");
+
+        row = [dt, kind];
+        for (j = 0; j < lines.length; j++) {
+
+            for(i=0;i<triggers.length;i++)
+            {
+                let trigger = triggers[i];
+                if (lines[j].indexOf(trigger) >= 0) {
+                    j++;
+                    if (lines[j].includes("$")) {
+                        lines[j] = lines[j].replaceAll("$", "").replaceAll(".", "").replaceAll(",", ".");
+                    }
+                    let val = lines[j].trim().replaceAll("*", "");
+                    row.push(val);
+                    break;
+                }
+            }
+        }
+        return row;
+
+    }
+
+
+
+
+
+    console.log("Start");
+    //https://blog.sentry.io/client-javascript-reporting-window-onerror/
+    window.onerror = function (msg, url, line) {
+        console.error(msg);
+        console.error(url);
+        console.error(line);
+        let errMsg = `JS ERROR ${msg}\n${url}\n${line}`;
+        alert(errMsg);
+        console.log('window.onerror', msg, url, line);
+    }
+    window.addEventListener('load', entryPoint2);
+
+
+    function entryPoint2() {
+        let triggers = ["Enviada", "Nº de referencia", "Producto origen", "Cuenta origen",
+            "Nombre origen", "Producto destino", "Cuenta destino", "Nombre destino", "Total Pesos"];
+        let rows = [];
+
+        let ix = plainBody.indexOf(triggers[0], 0);
+        if (ix > 0)
+            plainBody = plainBody.substr(ix);
+        ix = plainBody.lastIndexOf(triggers[triggers.length - 1], 0);
+        if (ix >= 0)
+            plainBody = plainBody.substr(ix);
+
+        let lines = plainBody.split('\n');
+
+        let row = getMidIneroTransfers(triggers, lines, "DB", new Date(), "transferencias");
+        if ( row.length > 2 )
+        rows.push(row);
+
+    }
+
+
+    //data *************************************************
+    let plainBody = ` 
+[image: �Ingres&aacute a www.midinero.com.uy para enterarte todas las 
+novedades!] <https://midinero.com.uy/> 
+ 
+
+Por favor, no respondas este correo, el mismo fue generado automáticamente 
+por nuestro sistema. Gracias. 
+ 
+
+Tu transferencia ha sido acreditada en la cuenta Midinero destino
+Enviada
+*29/03/2024 17:05* 
+
+Nº de referencia
+*003196691967* 
+ 
+*Resumen de transferencia* 
+ 
+Producto origen
+TARJ. INDUMEX INTERNACIONAL 
+
+Cuenta origen
+9718681 
+
+Nombre origen
+CESAR CASTANO 
+ 
+Producto destino
+*MIDINERO* 
+
+Cuenta destino
+*3382379* 
+
+Nombre destino
+*CESAR CASTANO* 
+ 
+
+Total Pesos
+
+$ 3.200,00
+ 
+ 
+
+ Preguntas frecuentes
+`;
+    //data *************************************************
+
+
+</script>
