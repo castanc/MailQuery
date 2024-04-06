@@ -1,0 +1,21 @@
+auto profiling:
+
+split text by lines
+remove empty lines
+for every line discover the patterns
+    split line in words
+    join all continous text words as a single text pattern
+    identify typical patterns as: dates, numbers, monetary, percentage, ipa ddress, dashed codes
+    lines of single text pattern are descriptive texts or header for next row or rows
+
+    identify repeating patterns for detailed transactions:
+    identify minimun common starting patterns
+    identify minimum common ending patterns
+
+    group lines by common patterns left and right
+
+
+
+
+    current profiling for repeating transactions:
+    

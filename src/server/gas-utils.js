@@ -11,20 +11,22 @@ function readKVPSheet(sheetName, folderName = "", propertyNames = []) {
   }
   else folder = DriveApp.getRootFolder();
 
+  if (folder == null) throw (`readKVPSheet() Invalid Folder Name: ${folderName}`);
+
+
   let files = folder.getFilesByName(sheetName);
   if (files.hasNext()) file = files.next();
 
   if (file == null) return obj;
 
   let grid = [];
-  if (propertyNames.length == 0)
-    grid.forEach(x => {
-      propertyNames.push(x[0]);
-    })
-
   let sheet = SpreadsheetApp.openById(file.getId());
   grid = sheet.getDataRange().getValues();
 
+  if (propertyNames.length == 0)
+    propertyNames = grid.map(x => x[0]);
+
+  obj = {};
   for (i = 0; i < grid.length; i++) {
     obj[propertyNames[i]] = grid[i][1];
   }
@@ -88,7 +90,7 @@ function getCreateSpreadSheet(folder, fileName, headerRow = "") {
     var sh = spreadSheet.getActiveSheet();
     sh.appendRow(header);
   }
-  
+
 
   return spreadSheet;
 }

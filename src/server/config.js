@@ -1,29 +1,32 @@
-let configFileName = "configuration";
-let configFolderName = "personal-records-config";
+let configFileName = "config";
 let processFolderName = "personal-records";
 
-function createConfig() {
 
-  let folder = getCreateFolder(processFolderName);
-  let configFolder = getCreateFolder(configFolderName);
+function createConfig(configColNames = []) {
 
+  let folder =  getCreateFolder(processFolderName);
+  
   let spreadSheet = SpreadsheetApp.create(configFileName);
   spreadSheet.renameActiveSheet(configFileName);
 
   var copyFile = DriveApp.getFileById(spreadSheet.getId());
   folder.addFile(copyFile);
   DriveApp.getRootFolder().removeFile(copyFile);
-  file = getFileFromFolder(fileName, folder);
+  file = getFileFromFolder(configFileName, folder);
   spreadSheet = SpreadsheetApp.openById(file.getId());
 
-  let data = [
+  let rows  = [
     ["JobsSheetName", "personal-records"],
     ["ProcessFolderName", processFolderName],
-    ["ConfigFolderName", configFolderName],
-    ["BatchId", 0]
+    ["JobsFolderName","personal-records-config"],
+    ["ConfigFileName",configFileName]
   ];
-  spreadSheet.appendRow(data);
-  return readKVPSheet(configFileName, configFolderName);
+  rows.forEach(row=>{
+  spreadSheet.appendRow(row);
+
+  })
+  let config = readKVPSheet(configFileName, processFolderName, configColNames);
+  return config;
 }
 
 

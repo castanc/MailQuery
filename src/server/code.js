@@ -1,19 +1,22 @@
 let pageBreak = "";
 
 function mailQuery() {
-  
-  let config = readKVPSheet(configFileName,configFolderName);
-  if  (config == null ) config = createConfig();
-  let jobColNames = ["Name", "FolderName","DataKind", "MailFrom", "MailSubject", "DocType", "MainAccount", "MainCard", "MainAccountName", "Function", "RepeatingFieldsHeader", "RepeatingFieldsEnd", "RepeatingFieldsFunction","RepeatingFieldsOffset","Currency1","Currency2","Interest","LateInt","PageBreak","DataStart","DataEnd"]
-  
+  let onlyUnread = true;
+    let configColNames = ["JobsSheetName","JobsFolderName","ProcessFolderName","ConfigFileName"];
 
-  let fieldsColNames = ["Order", "FieldName", "FieldAlias", "FieldBackPosInLine", "LineOffset", "Mask", "DataType", "Function", "RepeatField"]
+  
+  let config = readKVPSheet(configFileName,processFolderName, configColNames);
+  if  (config == null ) config = createConfig(configColNames);
 
-  let jobs = readSheet(config.JobsSheetName, config.ConfigFolder, jobColNames);
+  let jobColNames =["Name","TransType","MailFrom","MailSubject","DocType","MainAccount","MainCard","MainAccountName","Function","RepeatingFieldsHeader","RepeatingFieldsEnd","RepeatingFieldsFunction","RepeatingFIeldsOffset","Moneda1","Moneda2","Interest","LateInt","PageBreak","DataStart","DataEnd"]
+  
+  let fieldsColNames = ["Order", "Name", "FieldAlias", "FieldPosInLine", "LineOffset", "Mask", "DataType", "Separators", "Exclude","Function", "RepeatField","CleanChars","CleanStart","CleanLength"]
+
+  let jobs = readSheet(config.JobsSheetName, config.JobsFolderName, jobColNames);
 
   jobs.forEach(job => {
     let fieldsFileName = `fields-${job.Name}`;
-    let fields = readSheet(fieldsFileName, rootFolder, fieldsColNames);
+    let fields = readSheet(fieldsFileName, config.JobsFolderName, fieldsColNames,onlyUnread);
     let result = monitorGmail(config,job,fields);
 
   })
