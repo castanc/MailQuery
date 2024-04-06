@@ -1,3 +1,17 @@
+let dow = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Staurday"];
+
+function getRepeatingLines(job, text) {
+  let result = "";
+  if (job.RepeatingFieldsHeader.length > 0) {
+    let ix = text.indexOf(job.RepeatingFieldsHeader);
+    if (ix >= 0) text = text.substring(ix);
+    ix = text.lastIndexOf(job.RepeatingFieldsEnd);
+    if (ix >= 0) text = text.substring(0, ix);
+    result = text;
+  }
+  return result;
+}
+
 function monitorGmail(config, job, fields, onlyUnread = true, maxMails = 500) {
   let sheet;
   let folder;
@@ -20,9 +34,7 @@ function monitorGmail(config, job, fields, onlyUnread = true, maxMails = 500) {
   if (subfolders.hasNext()) folder = subfolders.next();
   else folder = rootFolder.createFolder(job.Name);
 
-  let headerFields = fields.filter(x => x.RepeatField == "");
-  let repeatFields = fields.filter(x => x.RepeatField != "");
-  let fieldNames = headerFields.map(x => x.Name);
+  let fieldNames = fields.map(x => x.Name);
 
   sheet = getCreateSpreadSheet(rootFolder, sheetName, `MailDate\tTransKind\t${fieldNames.join('\t')}`);
 
@@ -55,12 +67,28 @@ function monitorGmail(config, job, fields, onlyUnread = true, maxMails = 500) {
         if (ix >= 0) plainBody = plainBody.substring(0, ix);
       }
 
-      let row = processHeaderFields(job, headerFields, plainBody, dt, subject, rootFolder, folder);
-      let repeatingRows = processRepeatingFields(job, headerFields, plainBody, dt, subject, rootFolder, folder, batchId);
+      let pages = plainBody.split(job.PageBreak);
 
-      config = incrementBatchId(config);
+      let row = [];
+      let rRows = [];
+      let repeatingLines = "";
+      if (pages.length > 0) {
+        repeatingLines = getRepeatingLines(job, pages[0]);
+        if (repeatingLines.length > 0)
+          pages[0] = pages[0].replace(repeatingLines, "");
 
+        //row = processHeaderFields(job, fields, pages[0], dt, subject, rootFolder, folder);
+        //if (row.length > 2) sheet.appendRow(row);
 
+      }
+      let rows = processRepeatingFields(job, repeatingLines);
+      if (rows.length > 0) fRows.concat(rows);
+
+      for (i = 1; i < pages.length; i++) {
+        repeatingLines = getRepeatingLines(job, pages[i]);
+        let rows = processRepeatingFields(job, repeatingLines);
+        if (rows.length > 0) fRows.concat(rows);
+      }
     });
   });
 }
@@ -81,12 +109,12 @@ function processHeaderFields(job, fields, plainBody, dt, subject, rootFolder, fo
   row = [dt, job.Name, job.TransType];
 
 
-  let done = [];  
+  let done = [];
   for (i = 0; i < lines.length; i++) {
 
     for (j = 0; j < fields.length; j++) {
       let f = fields[j];
-      if ( done.indexOf(f.Name)>=0) continue;
+      if (done.indexOf(f.Name) >= 0) continue;
 
       if (job.DocYear == 0) {
         let dateFields = fields.filter(x => x.DataType == "D");
@@ -113,7 +141,7 @@ function processHeaderFields(job, fields, plainBody, dt, subject, rootFolder, fo
         else f = getRawData(f, lines[i].trim());
         row.push(f.RawVal);
         done.push(f.Name);
-          Logger.log(`${f.FieldAlias} ${f.RawVal}`);
+        Logger.log(`${f.FieldAlias} ${f.RawVal}`);
         if (f.Alias == "BatchName") job.BatchName = f.RawVal;
         break;
       }
@@ -124,11 +152,45 @@ function processHeaderFields(job, fields, plainBody, dt, subject, rootFolder, fo
 }
 
 
-function processRepeatingFields(job, headerFields, plainBody, dt, subject, rootFolder, folder, batchId) {
+function processRepeatingFields(job, plainBody) {
   let rows = [];
-  return rows;
+  let evLines = [];
+  let fRows = [];
+  let fRow = [];
 
+  let lines = plainBody.split('\n').filter(x => x.trim() != "");
+
+  for (i = 1; i < lines.length; i++) {
+    evLines.push(profileLine(lines[i]));
+  }
+  let lm = evLines.map(x => x.LineMask.length);
+  let maxLen = Math.max(...lm);
+
+  for (i = 0; i < evLines.length; i++) {
+    fRow = [];
+    let l = evLines[i];
+    if (i > 0 && !l.LineMask.startsWith(job.RepeatingStartType)) l.MaskedFields.splice(0, 0, evLines[i - 1].MaskedFields[0]);
+
+    fRow.push(l.MaskedFields[0].Value);
+    fRow.Push(dow[l.MaskedFields[i].Value.getDay()]);
+
+    let endField = 1
+    if (l.LineMask.endsWith(job.RepeatingEndType)) 
+    {
+      endField = 2;
+      fRow.Push(l.MaskedFields[l.MaskedFields.length - 1].Value);
+    }
+
+    for (i = 1; i < l.MaskedFields.length - endField; j++) {
+      fRow.push(l.MaskedFields[j]);
+    }
+  }
+  fRows.push(fRow);
+  return fRows;
 }
+
+
+
 
 function tryDate(val, sep, format) {
   let parts = val.split(sep);
@@ -175,7 +237,7 @@ function tryTime(val, sep, dt = null) {
 function getRawData(field, val) {
   if (field.DataType == "%" || val.includes("%")) {
     val = removeExclusions(val, field.Exclude);
-    val = val.replaceAll(",",".");
+    val = val.replaceAll(",", ".");
     field.RawVal = Number(val) / 100;
   }
   else if (field.DataType == "$" || val.includes("$")) {
@@ -212,13 +274,12 @@ function getRawData(field, val) {
   return field;
 }
 
-
 function removeExclusions(val, excludes) {
   if (excludes == "") return val;
 
   let chars = excludes.split('');
 
-  chars.forEach(ch => val = val.replaceAll(ch,""));
+  chars.forEach(ch => val = val.replaceAll(ch, ""));
 
   return val.trim();
 }
