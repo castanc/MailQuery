@@ -1,0 +1,56 @@
+auto profiling:
+
+split text by lines
+remove empty lines
+for every line discover the patterns
+    split line in words
+    join all continous text words as a single text pattern
+    identify typical patterns as: dates, numbers, monetary, percentage, ipa ddress, dashed codes
+    lines of single text pattern are descriptive texts or header for next row or rows
+
+    identify repeating patterns for detailed transactions:
+    identify minimun common starting patterns
+    identify minimum common ending patterns
+
+    group lines by common patterns left and right
+
+
+
+
+    current profiling for repeating transactions:
+
+
+    minima parametrizacioin:
+
+    mailFrom
+    subject trigger
+    repeatinglines header
+    
+    
+
+
+    DELETE A MAIL:
+    https://stackoverflow.com/questions/15995031/google-apps-script-gmail-delete-forever-e-mails-in-trash-with-specific-label
+
+
+    convert pdf to text
+    https://stackoverflow.com/questions/26613809/get-pdf-attachments-from-gmail-as-text
+    https://stackoverflow.com/questions/77675659/apps-script-drive-files-insert-not-a-function
+    
+    worked: https://stackoverflow.com/questions/77675659/apps-script-drive-files-insert-not-a-function
+
+    ocr text WITH  google drive
+    https://www.reddit.com/r/GoogleAppsScript/comments/17vpbci/ocr_using_gappscripts/
+
+    batched operations
+    https://developers.google.com/apps-script/guides/support/best-practices#use_batch_operations
+
+    google Advanced Drive Service
+    https://developers.google.com/apps-script/advanced/drive
+
+
+
+
+ocr option specify language bcp 47 codes
+
+https://appmakers.dev/bcp-47-language-codes-list/
