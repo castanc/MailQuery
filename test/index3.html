@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+
+   console.log("Start");
+    //https://blog.sentry.io/client-javascript-reporting-window-onerror/
+    window.onerror = function (msg, url, line) {
+        console.error(msg);
+        console.error(url);
+        console.error(line);
+        let errMsg = `JS ERROR ${msg}\n${url}\n${line}`;
+        alert(errMsg);
+        console.log('window.onerror', msg, url, line);
+    }
+    window.addEventListener('load', entryPoint2);
+
+
+    function entryPoint2() {
+        let triggers = ["Enviada", "Nº de referencia", "Producto origen", "Cuenta origen",
+            "Nombre origen", "Producto destino", "Cuenta destino", "Nombre destino", "Total Pesos"];
+        let rows = [];
+
+        let ix = plainBody.indexOf(triggers[0], 0);
+        if (ix > 0)
+            plainBody = plainBody.substr(ix);
+        ix = plainBody.lastIndexOf(triggers[triggers.length - 1], 0);
+        if (ix >= 0)
+            plainBody = plainBody.substr(ix);
+
+        let lines = plainBody.split('\n');
+
+        let row = [];
+        if ( row.length > 2 )
+        rows.push(row);
+
+    }
+
+    function processHeaderFields(job, fields, plainBody, dt, subject, rootFolder, folder, batchId) {
+  let ix = 0;
+  let row = [dt, job.TransType, job.BatchId];
+
+    if (fields.length == 0) return row;
+
+  ix = plainBody.indexOf(fields[0].Name);
+  if (ix >= 0) plainBody = plainBody.substring(ix);
+  ix = plainBody.lastIndexOf(fields[fields.length - 1]);
+  if (ix >= 0) plainBody = plainBody.substring(0, fields[fields.length - 1].Name.length);
+
+  let lines = plainBody.split('\n');
+  row = [dt, job.Name, job.TransType];
+  for (i = 0; i < lines.length; i++) {
+    fields.every(f => {
+      //todo check if requires ==
+      if (lines[i] == field.Name) {
+        f = getRawData(f, lines[i + field.LineOffset]);
+        row.push(f.RawVal);
+        if ( f.Alias == "BatchName") job.BatchName = field.RawVal;
+        return false;
+      }
+      return true;
+    });
+    return row;
+  }
+
+
+
+    //data *************************************************
+    let plainBody = ` 
+[image: �Ingres&aacute a www.midinero.com.uy para enterarte todas las 
+novedades!] <https://midinero.com.uy/> 
+ 
+
+Por favor, no respondas este correo, el mismo fue generado automáticamente 
+por nuestro sistema. Gracias. 
+ 
+
+Tu transferencia ha sido acreditada en la cuenta Midinero destino
+Enviada
+*29/03/2024 17:05* 
+
+Nº de referencia
+*003196691967* 
+ 
+*Resumen de transferencia* 
+ 
+Producto origen
+TARJ. INDUMEX INTERNACIONAL 
+
+Cuenta origen
+9718681 
+
+Nombre origen
+CESAR CASTANO 
+ 
+Producto destino
+*MIDINERO* 
+
+Cuenta destino
+*3382379* 
+
+Nombre destino
+*CESAR CASTANO* 
+ 
+
+Total Pesos
+
+$ 3.200,00
+ 
+ 
+
+ Preguntas frecuentes
+`;
+    //data *************************************************
+    plainBody = `PÁGINA 1/3 
+
+
+MES DE EMISIÓN PRODUCTO N° CUENTA 
+Diciembre 2023 TARJETA ANDA CON RETENCIÓN 0010573905 
+
+Casa Central: Arenal 
+Grande 1570. CP: 11200 
+Montevideo, Uruguay 
+
+ESTADO DE CUENTA TARJETA DE CRÉDITO 
+
+CESAR ALFREDO CASTAÑO YEPES 
+
+HORMIGUEROS,DE LOS 3239 Apto. 703, MONTEVIDEO, URUGUAY, CP:11321 
+
+FECHA DE VENC FECHA DE PROX VENC FECHA DE CIERRE 
+23/01/2024 21/02/2024 
+FECHA DE PROX CIERRE 
+31/01/2024 
+LÍMITE DE CRÉDITO CRÉDITO DISPONIBLE SALDOS A VENCER 
+$U 16.121,16 
+FECHA DE CORTE * 
+TASAS: 
+TEA 
+TEA PRÓX MES 
+$ 35,00% 
+$ 35,00% 
+USD 
+USD 
+TEA MORA 
+TEA MORA PRÓX MES 
+$ 45,00% 
+$ 45,00% 
+USD 
+USD 
+31/12/2023 
+7.810,00$ USD 0,00$U 148.808,00 
+FECHA TARJETA DETALLE CUOTAS IMPORTE $ IMPORTE USD 
+SALDO ANTERIOR 97.192,13 0,00 
+12/12/2023 PAGO EMPRESA: TCS URUGUAY S.A. - 112023 -6.084,00 
+01/12/2023 0348 SAMSUNG, cuota(66225320):4 de 6 1/1 3.009,50 
+01/12/2023 0348 MISTRAL, cuota(66529354):3 de 6 1/1 597,00 
+Sub-Total Movs. del Período - Tarjeta 0348 3.606,50 
+02/12/2023 1036 BEST SELLER 2.159,00 
+04/12/2023 1036 BURGER KING ELLAURI 298,00 
+04/12/2023 1036 Reducción IVA Ley Nº 17934 -22,05 
+04/12/2023 1036 DISCO 13 35,68 
+05/12/2023 1036 DISCO 13 557,77 
+05/12/2023 1036 DISCO 13 462,84 
+06/12/2023 1036 DISCO 13 535,99 
+07/12/2023 1036 DISCO 13 731,68 
+08/12/2023 1036 DISCO 13 723,46 
+09/12/2023 1036 DISCO 13 217,00 
+09/12/2023 1036 BURGER KING ELLAURI 298,00 
+09/12/2023 1036 Reducción IVA Ley Nº 17934 -22,05 
+09/12/2023 1036 DISCO 13 33,35 
+09/12/2023 1036 DISCO 13 409,24 
+10/12/2023 1036 DISCO 13 31,69 
+10/12/2023 1036 DISCO 13 276,68 
+10/12/2023 1036 DISCO 13 192,17 
+11/12/2023 1036 DISCO 13 38,76 
+12/12/2023 1036 DISCO 13 183,91 
+12/12/2023 1036 DISCO 13 39,65 
+12/12/2023 1036 DISCO 13 148,62 
+13/12/2023 1036 DISCO 13 78,07 
+13/12/2023 1036 DISCO 13 201,13 
+14/12/2023 1036 DISCO 13 203,91 
+15/12/2023 1036 DISCO 13 802,01 
+15/12/2023 1036 REDPAGOS 1.282,01 
+15/12/2023 1036 DISCO 13 41,30 
+15/12/2023 1036 DISCO 13 436,12 
+16/12/2023 1036 MISTRAL 3.213,00 
+16/12/2023 1036 FARMASHOP 32,00 
+16/12/2023 1036 DISCO 13 179,00 
+16/12/2023 1036 DISCO 13 634,64 
+
+
+
+PÁGINA 2/3 
+
+
+MES DE EMISIÓN PRODUCTO N° CUENTA 
+Diciembre 2023 TARJETA ANDA CON RETENCIÓN 0010573905 
+
+Casa Central: Arenal 
+Grande 1570. CP: 11200 
+Montevideo, Uruguay 
+
+ESTADO DE CUENTA TARJETA DE CRÉDITO 
+
+CESAR ALFREDO CASTAÑO YEPES 
+
+HORMIGUEROS,DE LOS 3239 Apto. 703, MONTEVIDEO, URUGUAY, CP:11321 
+
+FECHA DE VENC FECHA DE PROX VENC FECHA DE CIERRE 
+23/01/2024 21/02/2024 
+FECHA DE PROX CIERRE 
+31/01/2024 
+LÍMITE DE CRÉDITO CRÉDITO DISPONIBLE SALDOS A VENCER 
+$U 16.121,16 
+FECHA DE CORTE * 
+TASAS: 
+TEA 
+TEA PRÓX MES 
+$ 35,00% 
+$ 35,00% 
+USD 
+USD 
+TEA MORA 
+TEA MORA PRÓX MES 
+$ 45,00% 
+$ 45,00% 
+USD 
+USD 
+31/12/2023 
+7.810,00$ USD 0,00$U 148.808,00 
+FECHA TARJETA DETALLE CUOTAS IMPORTE $ IMPORTE USD 
+17/12/2023 1036 DISCO 13 142,83 
+18/12/2023 1036 DISCO 13 269,12 
+18/12/2023 1036 DISCO 13 146,18 
+18/12/2023 1036 DISCO 13 50,00 
+19/12/2023 1036 DISCO 13 340,11 
+19/12/2023 1036 MISTRAL 2.072,00 
+19/12/2023 1036 TOTO 1.493,00 
+19/12/2023 1036 DISCO 13 273,98 
+20/12/2023 1036 ASOCIACION ESPANOLA PRIMERA DE SOCORROS 
+MUTU 390,00 
+20/12/2023 1036 ASOCIACION ESPANOLA PRIMERA DE SOCORROS 
+MUTU 3.242,00 
+20/12/2023 1036 DISCO 13 372,00 
+20/12/2023 1036 DISCO 13 76,06 
+20/12/2023 1036 DISCO 13 24,66 
+21/12/2023 1036 DISCO 13 240,91 
+21/12/2023 1036 MISTRAL 2.201,50 
+21/12/2023 1036 DISCO 13 18,72 
+21/12/2023 1036 DISCO 13 966,23 
+22/12/2023 1036 MC DONALD'S 27 284,00 
+22/12/2023 1036 Reducción IVA Ley Nº 17934 -20,95 
+Sub-Total Movs. del Período - Tarjeta 1036 27.014,93 
+31/12/2023 Intereses Compensatorios 2.579,74 
+31/12/2023 IVA 22% 567,54 
+SALDO CONTADO 
+Total Devolución Ley 17.934 del período: -$U 65.05 
+124.876,84 0,00 
+
+
+
+PÁGINA 3/3 
+
+
+MES DE EMISIÓN PRODUCTO N° CUENTA 
+Diciembre 2023 TARJETA ANDA CON RETENCIÓN 0010573905 
+
+Casa Central: Arenal 
+Grande 1570. CP: 11200 
+Montevideo, Uruguay 
+
+ESTADO DE CUENTA TARJETA DE CRÉDITO 
+
+CESAR ALFREDO CASTAÑO YEPES 
+
+HORMIGUEROS,DE LOS 3239 Apto. 703, MONTEVIDEO, URUGUAY, CP:11321 
+
+FECHA DE VENC FECHA DE PROX VENC FECHA DE CIERRE 
+23/01/2024 21/02/2024 
+FECHA DE PROX CIERRE 
+31/01/2024 
+LÍMITE DE CRÉDITO CRÉDITO DISPONIBLE SALDOS A VENCER 
+$U 16.121,16 
+FECHA DE CORTE * 
+TASAS: 
+TEA 
+TEA PRÓX MES 
+$ 35,00% 
+$ 35,00% 
+USD 
+USD 
+TEA MORA 
+TEA MORA PRÓX MES 
+$ 45,00% 
+$ 45,00% 
+USD 
+USD 
+31/12/2023 
+7.810,00$ USD 0,00$U 148.808,00 
+FECHA TARJETA DETALLE CUOTAS IMPORTE $ IMPORTE USD 
+INTERESES BONIFICABLES IVA INTERESES PAGO A CRÉDITO PAGO MÍNIMO * PAGO CONTADO 
+$ 951,15 $ 209,25 $ 126.037,24 $ 9.233,76 $ 124.876,84 
+USD 0,00 USD 0,00 USD 0,00 USD 0,00 USD 0,00 
+Por consultas y/o reclamos ingresa en anda.com.uy/socios/sugerencias-y-reclamos/ y nos contactaremos a la brevedad posible, odirígete a cualquiera de nuestras Sucursales.
+ANDA se encuentra supervisada por el BCU, más información en www.bcu.com.uySi no desea recibir el estado de cuenta, podrá solicitar que no se le envíe y retirarlo en cualquier sucursal o consultarlo en nuestraweb. 
+(*)Realizar únicamente pagos mínimos aumentará significativamente el tiempo que llevará pagar la deuda, así como el monto de lamisma. 
+
+
+AND125932093200000918562 
+
+
+
+`;
+
+
+</script>
