@@ -865,9 +865,10 @@ DCF:defensor@bancolombia.com.co;www.bancolombia.com/personas/defensor-financiero
             let row = profileLine(l);
             rows.push(row);
           });
-          let outPage = {PageNo:outPages.length, Rows:rows};
-          outPages.push(outPage);
+          outPages.push(rows);
          });
+         let newPages = TD2DT(outPages);
+         newPages = moneyOnly(newPages);
  }
 
 </script>
@@ -1200,5 +1201,163 @@ let obj = { LineNo: lineNo, Line: l, MaskedFields: nlp, LineMask: nlp.map(x => x
 return obj;
 
 }      
+</script>
+
+
+<script id="td2dt">
+  function TD2DT(outPages)
+{
+  /*
+  if linemask == D and next is TD OR ( CURRENT == TD AND NEXT == TD)
+
+
+  */
+  let nr = [];
+  let lastD = null;
+  let newT = null;
+  let r1 = { Valid: false, Value: null };
+  let r2 = { Valid: false, Value: null };
+  let newPages = [];
+  let newPage = [];
+    
+  for(let i=0;i<outPages.length;i++)
+  {
+    let op = outPages[i];
+    np = [];
+    let changed = 0;
+    let startLine0 =-1;
+    let startLine1 = -1;
+    let startLine2 = -1;
+    let endLine = -1;
+
+    for(let j=0;j<op.length-2;j++){
+      let c = op[j];
+      let n = op[j+1];
+      let nn = op[j+2]
+      if ( c.LineMask == "D" && n.LineMask == "T")
+      {
+          r1.Valid = true;
+          r1.LineMask = "DT";
+          r1.LineNo = c.LineNo;
+          r1.MaskedFields = [];
+          r1.MaskedFields.push(c.MaskedFields[0]);
+          r1.MaskedFields.push(n.MaskedFields[0]);
+          r1.Line = `${n.Line} ${c.Line}`;
+          np.push(r1);
+          startLine2 = np.length;
+
+      }
+      else if ( c.LineMask == "D" && n.LineMask == "TD")
+      {
+          r1.Valid = true;
+          r1.LineMask = "DT";
+          r1.LineNo = c.LineNo;
+          r1.MaskedFields = [];
+          r1.MaskedFields.push(c.MaskedFields[0]);
+          r1.MaskedFields.push(n.MaskedFields[0]);
+          r1.LineNo = c.lineNo;
+          r1.Line = `${n.Line} ${c.Line}`;
+          np.push(r1);
+          startLine0 = np.length;
+          changed++;
+
+          lastD = {Valid:true,LineMask:"DT",LineNo:n.LineNo,Line:`${c.Line} ${n.Line}`, MaskedFields:[]};
+          lastD.MaskedFields = [];
+          lastD.MaskedFields.push(n.MaskedFields[1]);
+          j+=2;
+      }
+      else if ( c.LineMask == "TD" && n.LineMask == "TD")
+      {
+        if ( lastD != null ) r1 = lastD;
+        else r1 = {Valid:true,LineMask:"DT",LineNo:c.LineNo,Line:`${n.MaskedFields[1].Value} ${c.MaskedFields[0].Value}`, MaskedFields:[]};
+        r1.MaskedFields.push(c.MaskedFields[1]);
+        r1.MaskedFields.push(n.MaskedFields[0]);
+        np.push(r1);
+        startLine1 = np.length;
+        changed++;
+
+
+        lastD = {Valid:true,LineMask:"DT",LineNo:n.LineNo,Line:`${n.MaskedFields[1].Value} ${c.MaskedFields[0].Value}`, MaskedFields:[]};
+        lastD.MaskedFields.push(n.MaskedFields[1]);
+        j+=2;
+      }
+      else if ( n.LineMask != "TD") { endLine = np.length; np.push(n);} 
+      else if (lastD !=null)
+      {
+        r1 = {
+          Valid:true,
+          LineMask:"DT",
+          LineNo:lastD.LineNo,
+          Line:`${lastD.MaskedFields[0].Value} ${c.MaskedFields[0].Value}`, 
+          MaskedFields:[]
+        };
+
+        r1.MaskedFields.push(c.MaskedFields[1]);
+        np.push(r1);
+        changed++;
+
+        j+=1;
+
+      }
+    }
+    newPages.push(
+      {
+        TDChanges:changed, 
+        StartLine0:startLine0, 
+        StartLine1:startLine1, 
+        StartLine2:startLine2,
+        EndLine:endLine, 
+        rows:np
+      });
+  }
+  return newPages;
+}
+
+</script>
+
+<script id="moneyOnly">
+
+  function allMoney(val)
+  {
+    if(val.startsWith("M") && val.endsWith("M"))
+    {
+      if ( val.length == 2 ) return true;
+      for(let i=1;i<val.length-1;i++)
+      {
+        if ( val.substring(i,1)!="M") return false
+
+      }
+      return true;
+    }
+    return false;
+  }
+function moneyOnly(newPages)
+{
+    newPages.forEach(np=>{
+        let newRows = [];
+        let re = /^M+$/
+        let moneyRows = np.rows.filter(x=>allMoney(x.LineMask)==true);
+        let startMoney = -1;
+        let endMoney = -1;
+        if ( moneyRows.length > 0 )
+        {
+          for(let i=0;i<np.rows.length-2;i++)
+          {
+              if ( allMoney(np.rows[i].LineMask) && allMoney(np.rows[i+1].LineMask)) 
+              {
+                  if ( startMoney == -1) startMoney = i;
+              }
+              newRows.push(np.rows[i]);
+          }
+          np.rows = newRows;
+          np.MoneyRows = moneyRows;
+          np.StartMoney = startMoney;
+          np.endMoney = endMoney;
+      }
+      else console.log("no money rows in this page");
+
+    });
+    return newPages;
+}
 </script>
 

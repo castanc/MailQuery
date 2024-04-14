@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+<script id="validate-money">
+function validateString(input) {
+    // Define the regular expression pattern
+    var regex = /^M+$/;
+
+    // Test the input string against the regex pattern
+    if (regex.test(input)) {
+        // If the input matches the pattern, return true
+        console.log(input,true);
+        return true;
+    } else {
+        // If the input does not match the pattern, return false
+        console.log(input,false);
+        return false;
+    }
+}
+
+// Example usage:
+var inputString = "MMMM";
+console.log(validateString(inputString)); // Output: true
+
+inputString = "MmM";
+console.log(validateString(inputString)); // Output: false
+
+console.log(validateString("M"));
+console.log(validateString("DTMM"));
+
+</script>
